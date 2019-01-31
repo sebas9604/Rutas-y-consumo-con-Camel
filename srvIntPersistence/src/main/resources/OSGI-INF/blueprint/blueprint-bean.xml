@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+	xmlns:cxf="http://camel.apache.org/schema/blueprint/cxf"
+	xsi:schemaLocation="
+         http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+         http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd
+         http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
+
+	<cm:property-placeholder
+		persistent-id="HelloBean" update-strategy="reload">
+		<cm:default-properties>
+			<cm:property name="greeting" value="Hi from Camel" />
+		</cm:default-properties>
+	</cm:property-placeholder>
+
+	<cxf:rsServer id="WSoperacion"
+		address="http://192.168.4.94:9890"
+		serviceClass="com.koghi.persistence.WSOperacion.WSOperacion"
+		loggingFeatureEnabled="true" />
+
+	<bean id="serviceHandler"
+		class="com.koghi.persitence.srvIntPersistence.ServiceHandler">
+	</bean>
+
+	<!-- Configuración DB en MySQL -->
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName"
+			value="com.mysql.cj.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://192.168.4.55:3306/dev_alianza?useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC" />
+		<property name="username" value="root" />
+		<property name="password" value="123456" />
+	</bean>
+
+	<!-- Componente para DB -->
+	<bean id="sqlComponent"
+		class="org.apache.camel.component.sql.SqlComponent">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<camelContext id="blueprint-bean-context"
+		xmlns="http://camel.apache.org/schema/blueprint">
+
+		<route id="operacionConsultar">
+			<from uri="cxfrs:bean:WSoperacion" />
+			<log message="The message contains ${body}" />
+
+			<choice>
+				<when>
+					<simple>${in.header.operationName} == "consultarUsuario"</simple>
+					<to uri="direct:operacionConsultarUsuario" />
+				</when>
+
+				<when>
+					<simple>${in.header.operationName} == "crearUsuario"</simple>
+					<to uri="direct:operacionCrearUsuario" />
+
+				</when>
+
+				<when>
+					<simple>${in.header.operationName} == "insertarProducto"</simple>
+					<to uri="direct:operacionInsertarProducto" />
+
+				</when>
+
+				<when>
+					<simple>${in.header.operationName} == "insertarServicio"</simple>
+					<to uri="direct:operacionInsertarServicio" />
+
+				</when>
+
+				<when>
+					<simple>${in.header.operationName} == "registrarError"</simple>
+					<to uri="direct:operacionRegistrarError" />
+
+				</when>
+
+				<when>
+					<simple>${in.header.operationName} == "registrarLog"</simple>
+					<to uri="direct:operacionRegistrarLog" />
+
+				</when>
+			</choice>
+		</route>
+
+		<route id="operacionConsultarUsuario">
+			<from uri="direct:operacionConsultarUsuario" />
+			<bean ref="serviceHandler" method="getUsuario" />
+			<log message="The message contains ${body}" />
+			<to uri="mock:result" />
+		</route>
+
+		<route id="operacionCrearUsuario">
+			<from uri="direct:operacionCrearUsuario" />
+			<bean ref="serviceHandler" method="putUsuario" />
+			<log message="The message contains ${body}" />
+			<to uri="mock:result" />
+		</route>
+
+		<route id="operacionInsertarProducto">
+			<from uri="direct:operacionInsertarProducto" />
+			<bean ref="serviceHandler" method="putCanastaFamiliar" />
+			<log message="The message contains ${body}" />
+			<to uri="mock:result" />
+		</route>
+
+		<route id="operacionInsertarServicio">
+			<from uri="direct:operacionInsertarServicio" />
+			<bean ref="serviceHandler" method="putService" />
+			<log message="The message contains ${body}" />
+			<to uri="mock:result" />
+		</route>
+
+		<route id="operacionRegistrarError">
+			<from uri="direct:operacionRegistrarError" />
+			<bean ref="serviceHandler" method="putError" />
+			<log message="The message contains ${body}" />
+			<to uri="mock:result" />
+		</route>
+
+		<route id="operacionRegistrarLog">
+			<from uri="direct:operacionRegistrarLog" />
+			<bean ref="serviceHandler" method="putLog" />
+			<log message="The message contains ${body}" />
+			<to uri="mock:result" />
+		</route>
+
+
+
+	</camelContext>
+
+</blueprint>
