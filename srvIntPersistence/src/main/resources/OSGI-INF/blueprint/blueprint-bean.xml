@@ -15,10 +15,19 @@
 		</cm:default-properties>
 	</cm:property-placeholder>
 
+	<!-- address="http://192.168.4.94:9890" -->
 	<cxf:rsServer id="WSoperacion"
-		address="http://192.168.4.94:9890"
+		address="http://localhost:9890"
 		serviceClass="com.koghi.persistence.WSOperacion.WSOperacion"
 		loggingFeatureEnabled="true" />
+
+	<!-- Configuración del ActiveMQ -->
+	<bean id="activemq"
+		class="org.apache.activemq.camel.component.ActiveMQComponent">
+		<property name="brokerURL" value="tcp://192.168.4.213:61616" />
+		<property name="userName" value="karaf" />
+		<property name="password" value="karaf" />
+	</bean>
 
 	<bean id="serviceHandler"
 		class="com.koghi.persitence.srvIntPersistence.ServiceHandler">
@@ -46,6 +55,8 @@
 
 		<route id="operacionConsultar">
 			<from uri="cxfrs:bean:WSoperacion" />
+			<log message="Inicio ruta principal" />
+
 			<log message="The message contains ${body}" />
 
 			<choice>
@@ -88,46 +99,67 @@
 
 		<route id="operacionConsultarUsuario">
 			<from uri="direct:operacionConsultarUsuario" />
+			<log message="Antes de ejecutar la operacion obtener usuario" />
 			<bean ref="serviceHandler" method="getUsuario" />
+			<log message="Despues de ejecutar la operacion obtener usuario" />
 			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
 		<route id="operacionCrearUsuario">
 			<from uri="direct:operacionCrearUsuario" />
+			<log message="Antes de ejecutar la operacion insertar usuario" />
 			<bean ref="serviceHandler" method="putUsuario" />
+			<log message="Despues de ejecutar la operacion insertar usuario" />
 			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
 		<route id="operacionInsertarProducto">
 			<from uri="direct:operacionInsertarProducto" />
+			<log message="Antes de ejecutar la operacion insertar producto" />
 			<bean ref="serviceHandler" method="putCanastaFamiliar" />
+			<log message="Despues de ejecutar la operacion insertar producto" />
 			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
 		<route id="operacionInsertarServicio">
+
 			<from uri="direct:operacionInsertarServicio" />
+			<log message="Antes de ejecutar la operacion insertar Servicio" />
 			<bean ref="serviceHandler" method="putService" />
+			<log message="Despues de ejecutar la operacion insertar Servicio" />
 			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
 		<route id="operacionRegistrarError">
 			<from uri="direct:operacionRegistrarError" />
+			<log message="Antes de ejecutar la operacion insertar Error" />
 			<bean ref="serviceHandler" method="putError" />
+			<log message="Despues de ejecutar la operacion insertar Error" />
 			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
 		<route id="operacionRegistrarLog">
 			<from uri="direct:operacionRegistrarLog" />
+			<log message="Antes de ejecutar la operacion insertar Log" />
 			<bean ref="serviceHandler" method="putLog" />
+			<log message="Despues de ejecutar la operacion insertar Log" />
 			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
+		<route id="queue">
+			<from uri="activemq:queue:APLICATION.QUEUE" />
+			<log message="Escucha cola del servicio ${body}" />
+			<log message="Antes de ejecutar la operacion de encolamiento" />
+			<bean method="listenQueue" ref="serviceHandler" />
+			<log message="Despues de ejecutar la operacion de encolamiento" />
+
+		</route>
 
 
 	</camelContext>

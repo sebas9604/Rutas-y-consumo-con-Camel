@@ -16,7 +16,7 @@
 	</cm:property-placeholder>
 
 	<cxf:rsServer id="WSoperacion"
-		address="http://192.168.4.94:9891/api"
+		address="http://localhost:9891/api"
 		serviceClass="com.koghi.api.WSOperacion.WSOperacion"
 		loggingFeatureEnabled="true" />
 
@@ -27,9 +27,11 @@
 	<camelContext id="blueprint-bean-context"
 		xmlns="http://camel.apache.org/schema/blueprint">
 
-		<route id="operacionUsuario">
+		<route id="operacionUsuario">		
 			<from uri="cxfrs:bean:WSoperacion" />
+			<log message="Antes de ejecutar operacion de consultar usuario" />
 			<bean ref="serviceHandler" method="getUsuario" />
+			<log message="Despues de ejecutar operacion de consultar usuario" />
 			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>

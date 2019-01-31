@@ -16,20 +16,17 @@ import com.koghi.api.util.Usuario;
 public class ServiceHandler {
 
 	private Client client = ClientBuilder.newClient();
-	private static final String END_POINT_CONSULTA_USUARIO = "http://192.168.4.94:9890/consultarUsuario";
+	private static final String END_POINT_CONSULTA_USUARIO = "http://localhost:9890/consultarUsuario";
 
 	public void getUsuario(String usuario, Exchange ex) {
-		System.out.println("SOUT: " + usuario);
 
 		// Autenticacion
 		String s = "";
 		String aut = ex.getIn().getHeader("Authorization").toString();
-		System.out.println(aut);
 		String[] str = aut.split(" ");
 		aut = str[1];
 		OperacionesBase64 deco = new OperacionesBase64();
 		s = deco.decodificar(aut);
-		System.out.println("Auto decodificado: " + s);
 
 		if (s.equals("koghi:K0Gh1")) {
 			JsonParser jsonParser = new JsonParser();
@@ -42,7 +39,6 @@ public class ServiceHandler {
 			ex.setOut(ex.getIn());
 
 			String body = "{\"TpId\":\"" + tpid + "\",\"NroId\":\"" + nroid + "\"}";
-			System.out.println("body:" + body);
 
 			try {
 				Response response = client.target(END_POINT_CONSULTA_USUARIO).request(MediaType.APPLICATION_JSON)
