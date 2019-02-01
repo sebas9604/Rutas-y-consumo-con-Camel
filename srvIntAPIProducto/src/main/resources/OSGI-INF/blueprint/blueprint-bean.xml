@@ -32,7 +32,6 @@
 			<log message="Antes de ejecutar operacion de consultar usuario" />
 			<bean ref="serviceHandler" method="getUsuario" />
 			<log message="Despues de ejecutar operacion de consultar usuario" />
-			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 	</camelContext>
