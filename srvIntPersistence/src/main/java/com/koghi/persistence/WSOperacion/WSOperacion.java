@@ -36,4 +36,9 @@ public interface WSOperacion {
 	@Path("/registrarLog")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String registrarLog(String user);
+	
+	@POST
+	@Path("/eliminarUsuario")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String eliminarUsuario(String user);
 }

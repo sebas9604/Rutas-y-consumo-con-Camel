@@ -57,7 +57,6 @@
 			<from uri="cxfrs:bean:WSoperacion" />
 			<log message="Inicio ruta principal" />
 
-			<log message="The message contains ${body}" />
 
 			<choice>
 				<when>
@@ -94,6 +93,12 @@
 					<to uri="direct:operacionRegistrarLog" />
 
 				</when>
+
+				<when>
+					<simple>${in.header.operationName} == "eliminarUsuario"</simple>
+					<to uri="direct:operacionEliminarUsuario" />
+
+				</when>
 			</choice>
 		</route>
 
@@ -102,7 +107,6 @@
 			<log message="Antes de ejecutar la operacion obtener usuario" />
 			<bean ref="serviceHandler" method="getUsuario" />
 			<log message="Despues de ejecutar la operacion obtener usuario" />
-			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
@@ -111,7 +115,6 @@
 			<log message="Antes de ejecutar la operacion insertar usuario" />
 			<bean ref="serviceHandler" method="putUsuario" />
 			<log message="Despues de ejecutar la operacion insertar usuario" />
-			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
@@ -120,7 +123,6 @@
 			<log message="Antes de ejecutar la operacion insertar producto" />
 			<bean ref="serviceHandler" method="putCanastaFamiliar" />
 			<log message="Despues de ejecutar la operacion insertar producto" />
-			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
@@ -130,7 +132,6 @@
 			<log message="Antes de ejecutar la operacion insertar Servicio" />
 			<bean ref="serviceHandler" method="putService" />
 			<log message="Despues de ejecutar la operacion insertar Servicio" />
-			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
@@ -139,7 +140,6 @@
 			<log message="Antes de ejecutar la operacion insertar Error" />
 			<bean ref="serviceHandler" method="putError" />
 			<log message="Despues de ejecutar la operacion insertar Error" />
-			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
@@ -148,10 +148,18 @@
 			<log message="Antes de ejecutar la operacion insertar Log" />
 			<bean ref="serviceHandler" method="putLog" />
 			<log message="Despues de ejecutar la operacion insertar Log" />
-			<log message="The message contains ${body}" />
 			<to uri="mock:result" />
 		</route>
 
+		<route id="operacionEliminarUsuario">
+			<from uri="direct:operacionEliminarUsuario" />
+			<log message="Antes de ejecutar la operacion eliminar Usuario" />
+			<bean ref="serviceHandler" method="deleteUsuario" />
+			<log message="Despues de ejecutar la operacion eliminar Usuario" />
+			<log message="The message contains ${body}" />
+			<to uri="mock:result" />
+		</route>
+		
 		<route id="queue">
 			<from uri="activemq:queue:APLICATION.QUEUE" />
 			<log message="Escucha cola del servicio ${body}" />

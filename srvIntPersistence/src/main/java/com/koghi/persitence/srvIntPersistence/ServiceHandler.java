@@ -66,7 +66,7 @@ public class ServiceHandler {
 		if(n > 0) {
 		String query = "sqlComponent:CALL crear_usuario('" + jo.get("Plan").getAsString() + "', '" + jo.get("TpId").getAsString() + "', '" + jo.get("NroId").getAsString() 
 				+ "', '" + jo.get("Nombre1").getAsString() + "', '" + jo.get("Nombre2").getAsString() + "', '" + jo.get("Apellido1").getAsString()
-				+ "', '" + jo.get("Apellido2").getAsString() + "', '" + jo.get("Correo1").getAsString() + "', '" + jo.get("Correo2").getAsString() + "')";
+				+ "', '" + jo.get("Apellido2").getAsString() + "', '" + jo.get("Correo1").getAsString() + "', '" + jo.get("Correo2").getAsString() + jo.get("idRequest").getAsString() + "')";
 		
 		exchange.getContext().createProducerTemplate().send(query, exchange);
 		
@@ -143,6 +143,20 @@ public class ServiceHandler {
 		JsonObject jo = (JsonObject)jsonParser.parse(json); 
 		
 		String query = "sqlComponent:CALL registrar_log('" + jo.get("Body").getAsString() + "', '" + jo.get("Accion").getAsString() + "', '" + jo.get("Descripcion").getAsString() + "')";
+		exchange.getContext().createProducerTemplate().send(query, exchange);
+		exchange.getOut().setBody("OK");
+
+		
+	}
+	
+	public void deleteUsuario(String user, Exchange exchange)
+	{		
+
+		String json = user; 
+		JsonParser jsonParser = new JsonParser(); 
+		JsonObject jo = (JsonObject)jsonParser.parse(json); 
+		
+		String query = "sqlComponent:CALL eliminar_usuario('" + jo.get("idRequest").getAsString() + "')";
 		exchange.getContext().createProducerTemplate().send(query, exchange);
 		exchange.getOut().setBody("OK");
 
